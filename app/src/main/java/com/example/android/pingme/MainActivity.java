@@ -48,5 +48,9 @@ public class MainActivity extends AppCompatActivity {
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         // Builds the notification and issues it.
         mNotifyMgr.notify(CommonConstants.NOTIFICATION_ID, mBuilder.build());
+
+        if(numMessage > 5) {
+            mNotifyMgr.cancel(CommonConstants.NOTIFICATION_ID);
+        }
     }
 }
