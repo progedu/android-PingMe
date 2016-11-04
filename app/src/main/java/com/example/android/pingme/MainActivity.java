@@ -16,12 +16,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
+    private int numMessage = 0;
+
     public void onPingClick(View v) {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_stat_notification)
                         .setContentTitle("My notification")
-                        .setContentText("Hello World!");
+                        .setContentText("update count: " + numMessage);
 
         // Creates an Intent for the Activity
         Intent notifyIntent =
@@ -39,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
                 );
 
         // Puts the PendingIntent into the notification builder
-        mBuilder.setContentIntent(pendingIntent);
+        mBuilder.setContentIntent(pendingIntent).setNumber(++numMessage);
         // Notifications are issued by sending them to the
         // NotificationManager system service.
         NotificationManager mNotifyMgr =
