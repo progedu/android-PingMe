@@ -1,56 +1,50 @@
 package com.example.android.pingme;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+
+    private Intent mServiceIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Creates an explicit Intent to start the serice that constructs and
+        // issues the notification.
+        mServiceIntent = new Intent(getApplicationContext(), PingService.class);
     }
 
-    private int numMessage = 0;
-
     public void onPingClick(View v) {
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_stat_notification)
-                        .setContentTitle("My notification")
-                        .setContentText("update count: " + numMessage);
+        int seconds;
 
-        // Creates an Intent for the Activity
-        Intent notifyIntent =
-                new Intent(this, ResultActivity.class);
-        // Sets the Activity to start in a new, empty task
-        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        // Creates the PendingIntent
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        notifyIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
+        // Gets the reminder text the user entered.
+        EditText msgText = (EditText) findViewById(R.id.edit_reminder);
+        String message = msgText.getText().toString();
 
-        // Puts the PendingIntent into the notification builder
-        mBuilder.setContentIntent(pendingIntent).setNumber(++numMessage);
-        // Notifications are issued by sending them to the
-        // NotificationManager system service.
-        NotificationManager mNotifyMgr =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        // Builds the notification and issues it.
-        mNotifyMgr.notify(CommonConstants.NOTIFICATION_ID, mBuilder.build());
+        mServiceIntent.putExtra(CommonConstants.EXTRA_MESSAGE, message);
+        mServiceIntent.setAction(CommonConstants.ACTION_PING);
+        Toast.makeText(this, R.string.timer_start, Toast.LENGTH_SHORT).show();
 
-        if(numMessage > 5) {
-            mNotifyMgr.cancel(CommonConstants.NOTIFICATION_ID);
+        // The number of seconds the timer should run.
+        EditText editText = (EditText)findViewById(R.id.edit_seconds);
+        String input = editText.getText().toString();
+
+        if(input == null || input.trim().equals("")){
+            // If user didn't enter a value, sets to default.
+            seconds = R.string.seconds_default;
+        } else {
+            seconds = Integer.parseInt(input);
         }
+        int milliseconds = (seconds * 1000);
+        mServiceIntent.putExtra(CommonConstants.EXTRA_TIMER, milliseconds);
+        // Launches IntentService "PingService" to set timer.
+        startService(mServiceIntent);
     }
 }
