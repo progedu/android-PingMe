@@ -74,6 +74,7 @@ public class PingService extends IntentService {
                         .setContentTitle(getString(R.string.notification))
                         .setContentText(getString(R.string.ping))
                         .setDefaults(Notification.DEFAULT_ALL) // requires VIBRATE permission
+                        .setVisibility(Notification.VISIBILITY_PUBLIC)
                 /*
                  * Sets the big view "big text" style and supplies the
                  * text (the user's reminder message) that will be displayed
