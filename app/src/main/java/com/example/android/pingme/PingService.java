@@ -112,11 +112,43 @@ public class PingService extends IntentService {
         startTimer(mMillis);
     }
 
-    private void issueNotification(NotificationCompat.Builder builder) {
+    private void issueNotification(final NotificationCompat.Builder builder) {
         mNotificationManager = (NotificationManager)
                 getSystemService(NOTIFICATION_SERVICE);
-        // Including the notification ID allows you to update the notification later on.
-        mNotificationManager.notify(CommonConstants.NOTIFICATION_ID, builder.build());
+
+        // Start a lengthy operation in a background thread
+        new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        int incr;
+                        // Do the "lengthy" operation 20 times
+                        for (incr = 0; incr <= 100; incr += 5) {
+                            // Sets the progress indicator to a max value, the
+                            // current completion percentage, and "determinate"
+                            // state
+                            builder.setProgress(100, incr, false);
+                            // Displays the progress bar for the first time.
+                            mNotificationManager.notify(CommonConstants.NOTIFICATION_ID, builder.build());
+                            // Sleeps the thread, simulating an operation
+                            // that takes time
+                            try {
+                                // Sleep for 5 seconds
+                                Thread.sleep(5 * 1000);
+                            } catch (InterruptedException e) {
+                                Log.d("issueNotification", "sleep failure");
+                            }
+                        }
+                        // When the loop is finished, updates the notification
+                        builder.setContentText("Download complete")
+                                // Removes the progress bar
+                                .setProgress(0, 0, false);
+                        mNotificationManager.notify(CommonConstants.NOTIFICATION_ID, builder.build());
+                    }
+                }
+                // Starts the thread by calling the run() method in its Runnable
+        ).start();
+
     }
 
     // Starts the timer according to the number of seconds the user specified.
